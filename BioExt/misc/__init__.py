@@ -7,8 +7,10 @@ try:
 except:
     from collections import UserList
 
-from itertools import product
+from copy import copy
+from itertools import groupby, product
 from random import randint, random
+from re import compile as re_compile
 
 from Bio.Seq import Seq, translate as _translate
 from Bio.SeqRecord import SeqRecord
@@ -18,6 +20,7 @@ from Bio.SeqFeature import FeatureLocation, SeqFeature
 __all__ = [
     '_GAP', '_STOP',
     'randgene',
+    'homocount',
     'homosplit',
     'intersperse',
     'by_codon',
@@ -25,7 +28,11 @@ __all__ = [
     'AmbigList',
     'translate_ambiguous',
     'translate',
-    'compute_cigar'
+    'compute_cigar',
+    'gapless',
+    'gapful',
+    'labelstream',
+    'clip'
     ]
 
 
@@ -66,45 +73,50 @@ def randgene(length, ppf):
         lp = round(ppf(random())) + 1
         # avoid stop codons
         if l % 3 == 1 and n1 == 3 and lp > 1:
-            avoid = 0 # TAA (3, 0, 0)
+            avoid = 0  # TAA (3, 0, 0)
         elif l % 3 == 2 and n2 == 3:
             if n1 == 0:
-                avoid = 2 # TAG (3, 0, 2)
+                avoid = 2  # TAG (3, 0, 2)
             elif n1 == 2:
-                avoid = 0 # TGA (3, 2, 0)
+                avoid = 0  # TGA (3, 2, 0)
         # avoid the last character and stop codons
         while c == n1 or c == avoid:
             c = randint(0, 3)
         # setup state
-        n2 = n1 # negative 1 to negative 2
-        n1 = c # negative 1 to char
-        avoid = -1 # reset avoid
+        n2 = n1  # negative 1 to negative 2
+        n1 = c  # negative 1 to char
+        avoid = -1  # reset avoid
         # grow seq
         s.append('ACGT'[c] * lp)
         l += lp
     return ''.join(s)[:length]
 
 
-def homosplit(iterable):
+def homocount(iterable):
     it = iter(iterable)
     a = next(it)
     i = 1
     for b in it:
         if b != a:
-            yield a * i
+            yield (a, i)
             a = b
             i = 0
         i += 1
-    yield a * i
+    yield (a, i)
+
+
+def homosplit(iterable):
+    for a, i in homocount(iterable):
+        yield a * i
 
 
 def intersperse(iterable, delimiter, n=1):
     if n < 1:
         msg = "cannot intersperse every n = '%d' < 1 elements" % n
         raise ValueError(msg)
-    n -= 1 # we yield a value manually, so yield in n - 1 groups
+    n -= 1  # we yield a value manually, so yield in n - 1 groups
     it = iter(iterable)
-    yield next(it) # yield manually
+    yield next(it)  # yield manually
     while True:
         for _ in range(n):
             yield next(it)
@@ -113,7 +125,7 @@ def intersperse(iterable, delimiter, n=1):
         # terminal delimiters
         saved = next(it)
         yield delimiter
-        yield saved # yield manually
+        yield saved  # yield manually
 
 
 def by_codon(seq, gap_char=_GAP):
@@ -127,7 +139,8 @@ def enumerate_by_codon(seq, gap_char=_GAP):
     elif isinstance(seq, Seq):
         seq = seq.tostring()
     elif not isinstance(seq, str):
-        raise ValueError('can only enumerate codons of a SeqRecord, Seq, or str')
+        msg = 'can only enumerate codons of a SeqRecord, Seq, or str'
+        raise ValueError(msg)
 
     seqlen = len(seq)
     num_cdns = seqlen // 3
@@ -151,7 +164,8 @@ def _translate_gapped(seq, *args, **kwds):
     elif isinstance(seq, str):
         s = seq
     else:
-        raise ValueError("can only translate sequences of type SeqRecord, Seq, or str")
+        msg = "can only translate sequences of type SeqRecord, Seq, or str"
+        raise ValueError(msg)
     gaps = 0
     lwr = 0
     protein = ''
@@ -203,7 +217,8 @@ def translate(seq, *args, **kwds):
     elif isinstance(seq, str):
         return _translate_gapped(seq, *args, **kwds)
     else:
-        raise ValueError('can only translate sequences of type SeqRecord, Seq, or str')
+        msg = 'can only translate sequences of type SeqRecord, Seq, or str'
+        raise ValueError(msg)
 
 
 def translate_ambiguous(seq, gap_char=_GAP, trim_gaps=True):
@@ -212,7 +227,8 @@ def translate_ambiguous(seq, gap_char=_GAP, trim_gaps=True):
     elif isinstance(seq, Seq):
         seqstr = seq.tostring()
     elif not isinstance(seq, str):
-        raise ValueError('can only enumerate codons of a SeqRecord, Seq, or str')
+        msg = 'can only enumerate codons of a SeqRecord, Seq, or str'
+        raise ValueError(msg)
 
     if trim_gaps:
         seqstr = seqstr.replace(gap_char, '')
@@ -238,7 +254,11 @@ def translate_ambiguous(seq, gap_char=_GAP, trim_gaps=True):
     return AmbigList(aminos)
 
 
-def compute_cigar(reference, record, new_style=False):
+def compute_cigar(reference, record, reference_name=None, new_style=False):
+
+    if reference_name is None:
+        reference_name = reference.name
+
     ncol = len(record)
 
     # find start, end of record in the ref
@@ -267,15 +287,15 @@ def compute_cigar(reference, record, new_style=False):
             # if both are gaps, skip
             pass
         elif ref in _GAPS:
-            m = 'I' # insertion
+            m = 'I'  # insertion
             edit_distance += 1
         elif query in _GAPS:
-            m = 'D' # deletion
+            m = 'D'  # deletion
             edit_distance += 1
         elif ref == query:
-            m = MATCH # match
+            m = MATCH  # match
         else:
-            m = MISMATCH # mismatch
+            m = MISMATCH  # mismatch
             edit_distance += 1
         # cigar handling
         if not mode:
@@ -293,8 +313,119 @@ def compute_cigar(reference, record, new_style=False):
     # inject the annotations and yield
     record.annotations['CIGAR'] = cigar
     record.annotations['edit_distance'] = edit_distance
-    record.annotations['position'] = start + 1 # 1-indexed
+    record.annotations['position'] = start
     record.annotations['length'] = end - start
-    record.annotations['reference_name'] = reference.name
+    record.annotations['reference_name'] = reference_name
 
     return record
+
+
+def gapless(seq):
+    if not any(char in _GAPS for char in seq):
+        return seq
+    regexp = re_compile('[{0}]+'.format(''.join(_GAPS)))
+    if isinstance(seq, str):
+        return regexp.sub('', seq)
+    elif isinstance(seq, Seq):
+        return Seq(regexp.sub('', str(seq)), seq.alphabet)
+    elif isinstance(seq, SeqRecord):
+        # TODO: support features and letter_annotations here
+        return SeqRecord(
+            Seq(regexp.sub('', str(seq.seq)), seq.seq.alphabet),
+            id=seq.id,
+            name=seq.name,
+            dbxrefs=copy(seq.dbxrefs),
+            # features=seq.features,
+            description=seq.description,
+            annotations=copy(seq.annotations)
+            # letter_annotations=seq.letter_annotations
+            )
+    else:
+        raise ValueError('seq must have type SeqRecord, Seq, or str')
+
+
+_cigar_regexp = re_compile(r'([0-9]+)([M=XID])')
+
+
+def gapful(record, insertions=True):
+    p = 0
+    modes = 'M=XI' if insertions else 'M=X'
+    cigparts = []
+    seqparts = ['-' * (record.annotations['position'])]
+    for m in _cigar_regexp.finditer(record.annotations['CIGAR']):
+        num, mode = int(m.group(1)), m.group(2)
+        if mode in modes:
+            cigparts.append(m.group(0))
+            seqparts.append(str(record.seq[p:(p + num)]))
+        elif mode == 'D':
+            seqparts.append('-' * num)
+        if mode != 'D':
+            p += num
+    return SeqRecord(
+        Seq(''.join(seqparts), record.seq.alphabet),
+        id=record.id,
+        name=record.name,
+        dbxrefs=copy(record.dbxrefs),
+        # features = seq.features,
+        description=record.description,
+        annotations=copy(record.annotations),
+        # letter_annotations=record.letter_annotations
+        )
+
+
+def rle_encode(iterable):
+    rle = []
+    for name, group in groupby(iterable):
+        length = 0
+        for _ in group:
+            length += 1
+        rle.append('{0:d}{1:s}'.format(length, name))
+    return ''.join(rle)
+
+
+def clip(record, start, end, insertions=True, span=False):
+    if span and record.annotations['position'] > start:
+        return None
+
+    bases = []
+    poses = []
+    modes = []
+
+    pos = record.annotations['position']
+    seq = iter(record.seq)
+    for m in _cigar_regexp.finditer(record.annotations['CIGAR']):
+        num, mode = int(m.group(1)), m.group(2).upper()
+        if not insertions and mode == 'I':
+            # if we're skipping insertions, consume those bases
+            for _ in range(num):
+                next(seq)
+        elif mode in 'DMIX=':
+            for _ in range(num):
+                # consume a base even if we're not going to keep it
+                base = None if mode == 'D' else next(seq)
+                if pos >= start and pos < end:
+                    bases.append(base)
+                    poses.append(pos)
+                    modes.append(mode)
+                pos += 0 if mode == 'I' else 1
+
+    if not len(poses):
+        return None
+
+    if span and (min(poses) > start or max(poses) < (end - 1)):
+        return None
+
+    annotations = copy(record.annotations)
+    annotations['CIGAR'] = rle_encode(modes)
+    annotations['position'] = min(poses)
+
+    return SeqRecord(
+        Seq(''.join(base for base in bases if base), record.seq.alphabet),
+        id=record.id,
+        name=record.name,
+        dbxrefs=copy(record.dbxrefs),
+        # features = seq.features,
+        description=record.description,
+        annotations=annotations,
+        # letter_annotations=record.letter_annotations
+        )

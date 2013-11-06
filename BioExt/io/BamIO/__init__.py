@@ -1,61 +1,39 @@
 
-from __future__ import division, print_function
-
 from os import close, remove
-from os.path import exists
+from os.path import exists, getsize
 from shutil import move
 from tempfile import mkstemp
 
-from pysam import view as samtools_view, sort as samtools_sort
+from BioExt.io import _SamBamIO
 
-from BioExt.io.SamIO import parse as sam_parse, write as sam_write
+from pysam import sort as pysam_sort
 
 
 __all__ = [
     'parse',
-    'write'
+    'write',
+    'sort'
     ]
 
 
-def parse(handle):
-    try:
-        fd, path = mkstemp(); close(fd)
-
-        with open(path, 'w') as fh:
-            for record in samtools_view(handle.name):
-                fh.write(record)
-
-        with open(path, 'r') as fh:
-            for record in sam_parse(fh):
-                yield record
-    finally:
-        if exists(path):
-            remove(path)
+def parse(path, index=True):
+    return _SamBamIO._parse('rb', path, index)
 
 
-def write(records, handle, reference, new_style=False):
-    handle_mode = handle.mode.lower()
-    if 'b' not in handle_mode or 'w' not in handle_mode:
-        raise ValueError('BamIO.write() takes a file handle opened for binary write')
+def write(records, path, reference=None, new_style=False, header=None):
+    return _SamBamIO._write('wb', records, path, reference, new_style, header)
 
-    try:
-        fd, path = mkstemp(); close(fd)
-
-        with open(path, 'w') as fh:
-            sam_write(records, fh, reference, new_style)
-
-        handle.write(samtools_view('-bS', path))
-    finally:
-        if exists(path):
-            remove(path)
 
 def sort(path):
     try:
-        fd, tmp_path = mkstemp(); close(fd)
+        fd, tmp_path = mkstemp()
 
-        samtools_sort(path, tmp_path)
-        tmp_path += '.bam' # sort adds the .bam suffix automatically
-        move(tmp_path, path)
+        close(fd)
+
+        if exists(path) and getsize(path):
+            pysam_sort(path, tmp_path)
+            tmp_path += '.bam'  # sort adds the .bam suffix automatically
+            move(tmp_path, path)
     finally:
         if exists(tmp_path):
             remove(tmp_path)

@@ -1,13 +1,21 @@
 
-from os import getenv
+from __future__ import division, print_function
+
+import os
+
+from ctypes import c_char
+from multiprocessing import Array
+from operator import itemgetter
+from sys import stderr
 
 from Bio.Align import MultipleSeqAlignment
-from Bio.Seq import Seq
+
+from Bio.Seq import Seq, reverse_complement as rc
 from Bio.SeqRecord import SeqRecord
 
-from BioExt.aligner import Aligner
+from BioExt.align import Aligner
 from BioExt.joblib import Parallel, delayed
-from BioExt.misc import _GAP, by_codon
+from BioExt.misc import compute_cigar, gapful, gapless
 
 
 __all__ = [
@@ -15,31 +23,59 @@ __all__ = [
     ]
 
 
-def _align(aln, ref, seq):
-    return aln(ref, seq)
+def _rc(record):
+    if isinstance(record, str):
+        return rc(record)
+    elif isinstance(record, Seq):
+        return record.reverse_complement()
+    elif isinstance(record, SeqRecord):
+        return SeqRecord(
+            record.seq.reverse_complement(),
+            id=record.id,
+            name=record.name,
+            description=record.description
+            )
+    else:
+        raise ValueError(
+            'record must be one of str, Bio.Seq, or Bio.SeqRecord'
+            )
 
-def align_to_refseq(
-    reference,
-    records,
-    score_matrix=None,
-    do_codon=True,
-    reverse_complement=True,
-    expected_identity=None,
-    keep_insertions=False,
-    quiet=None,
-    **kwargs
-    ):
 
-    if keep_insertions:
-        raise ValueError('keeping insertions is unsupported at this time')
+# aln, ref, ref_name, and do_revcomp are set by set_globals below
+def _align(record):
+    records = (record, _rc(record)) if do_revcomp else (record,)
+    score, ref_, record = max(
+        (aln(ref.value.decode('utf-8'), record) for record in records),
+        key=itemgetter(0)
+        )
+    record_ = compute_cigar(ref_, record, ref_name)
+    return score, record_
 
-    if score_matrix is None:
-        from BioExt.scorematrix import BLOSUM62
-        score_matrix = BLOSUM62.load()
 
-    # drop-in compatibility with hy454
-    do_codon = kwargs.get('codon', do_codon)
-    reverse_complement = kwargs.get('revcomp', reverse_complement)
+def _set_globals(*args):
+    for key, value in args:
+        globals()[key] = value
+
+
+def _align_par(
+        reference,
+        records,
+        score_matrix,
+        do_codon,
+        reverse_complement,
+        expected_identity,
+        discard,
+        output,
+        quiet=True
+        ):
+
+    try:
+        n_jobs = int(os.environ.get('NCPU', -1))
+    except ValueError:
+        n_jobs = -1
+
+    if n_jobs == 0:
+        n_jobs = 1
 
     aln = Aligner(
         score_matrix,
@@ -47,73 +83,103 @@ def align_to_refseq(
         expected_identity=expected_identity
         )
 
-    if reverse_complement:
-        def rc(records):
-            for record in records:
-                yield record
-                yield record.reverse_complement()
-        records_ = rc(records)
+    if isinstance(reference, str):
+        refstr = reference
+    elif isinstance(reference, Seq):
+        refstr = str(reference)
+    elif isinstance(reference, SeqRecord):
+        refstr = str(reference.seq)
     else:
-        records_ = records
-
-    results = Parallel(
-        n_jobs=int(getenv('NCPU', -1)),
-        verbose=0,
-        pre_dispatch='2 * n_jobs'
-        )(
-            delayed(aln)(reference, record)
-            for record in records_
+        raise ValueError(
+            'reference must be one of str, Bio.Seq, Bio.SeqRecord'
             )
 
-    def finalize(results):
-        # grab the best orientation, if we doing that
-        if reverse_complement:
-            if len(results) % 2 != 0:
-                raise ValueError('len(results) should be a multiple of 2')
-            results_ = (
-                _1 if _1[0] >= _2[0] else _2
-                for _1, _2 in zip(results[::2], results[1::2])
-                )
-        else:
-            results_ = results
-        # make translation table
-        if do_codon:
-            tbl = ''.join(
-                'N' if c == _GAP else c
-                for c in (chr(i) for i in range(256))
-                )
-        # iterate through the results
-        for score, ref, seq in results_:
-            # strip insertions
-            seq_ = ''.join(s for r, s in zip(ref, seq) if r != _GAP)
-            # convert partial-codon deletions to Ns (frameshift deletion)
-            if do_codon:
-                gap_cdn = 3 * _GAP
-                seq_ = ''.join(
-                    cdn if (_GAP not in cdn) or cdn == gap_cdn
-                    else cdn.translate(tbl)
-                    for cdn in by_codon(seq_)
-                    )
-            # create return value of the proper type (probably overkill)
-            if isinstance(seq, SeqRecord):
-                rv = SeqRecord(
-                    Seq(seq_),
-                    id=seq.id,
-                    name=seq.name,
-                    description=seq.description,
-                    features=seq.features
-                    )
-            elif isinstance(seq, Seq):
-                rv = Seq(seq_)
-            else:
-                rv = seq_
-            yield score, rv
+    reference_ = Array(c_char, refstr.encode('utf-8'))
 
-    alignment, discard = MultipleSeqAlignment([]), []
-    for score, record in finalize(results):
+    def keep(score, record):
         if aln.expected(score):
-            alignment.append(record)
-        else:
-            discard.append(record)
+            return True
+        elif discard:
+            discard(record)
+        return False
 
-    return alignment, discard
+    if quiet:
+        def delayed_(i, fn):
+            return delayed(fn)
+    else:
+        def delayed_(i, fn):
+            print('\rdispatched: {0:9d} reads'.format(i), end='', file=stderr)
+            stderr.flush()
+            return delayed(fn)
+
+    rv = output(
+        record
+        for score, record in Parallel(
+            n_jobs=n_jobs,
+            verbose=0,
+            pre_dispatch='3 * n_jobs',  # triple-buffering
+            initializer=_set_globals,
+            initargs=[
+                ('aln', aln),
+                ('ref', reference_),
+                ('ref_name', reference.name),
+                ('do_revcomp', reverse_complement)
+                ]
+            ).lazy(
+                delayed_(i, _align)(record)
+                for i, record in enumerate(records, start=1)
+                )
+        if keep(score, record)
+        )
+
+    if not quiet:
+        print('', file=stderr)
+
+    return rv
+
+
+def align_to_refseq(
+        reference,
+        records,
+        score_matrix=None,
+        do_codon=True,
+        reverse_complement=True,
+        expected_identity=None,
+        keep_insertions=False,
+        **kwargs
+        ):
+
+    if keep_insertions:
+        raise ValueError('keeping insertions is unsupported at this time')
+
+    if score_matrix is None:
+        from BioExt.scorematrices import BLOSUM62
+        score_matrix = BLOSUM62.load()
+
+    # drop-in compatibility with hy454
+    do_codon = kwargs.get('codon', do_codon)
+    reverse_complement = kwargs.get('revcomp', reverse_complement)
+
+    discards = []
+
+    def discard(record):
+        discards.append(record)
+
+    alignment = MultipleSeqAlignment([])
+
+    def output(records):
+        for record in records:
+            alignment.append(gapful(gapless(record), insertions=False))
+
+    _align_par(
+        reference,
+        records,
+        score_matrix,
+        do_codon,
+        reverse_complement,
+        expected_identity,
+        discard,
+        output
+        )
+
+    return alignment, discards
