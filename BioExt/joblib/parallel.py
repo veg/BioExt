@@ -463,7 +463,7 @@ class Parallel(Logger):
             n_jobs = max(multiprocessing.cpu_count() + 1 + n_jobs, 1)
 
         # The list of exceptions that we will capture
-        daemonic = multiprocessing.current_process()._daemonic
+        daemonic = multiprocessing.current_process().daemon
         self.exceptions = [TransportableException]
         if n_jobs is None or multiprocessing is None or n_jobs == 1 or daemonic:
             n_jobs = 1
