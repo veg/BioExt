@@ -31,7 +31,8 @@ def main(
         score_matrix,
         discard_handle,
         do_sort,
-        quiet):
+        quiet,
+        keep_reference):
 
     try:
         score_matrix_ = score_matrix.load()
@@ -58,6 +59,8 @@ def main(
                 yield record
     else:
         def allseqs(records):
+            if keep_reference:
+                 yield compute_cigar(reference, reference)
             for record in records:
                 yield record
 
@@ -177,6 +180,12 @@ if __name__ == '__main__':
         version='BioExt version {0}'.format(version),
         help='print version information and exit'
         )
+    parser.add_argument(
+        '-K', '--keep-reference',
+        dest='keep_reference',
+        action='store_true',
+        help='include the reference sequence as the first one in the resulting BAM file [the default is to strip it]'
+        )
 
     args = None
     retcode = -1
@@ -194,7 +203,8 @@ if __name__ == '__main__':
             args.score_matrix,
             args.discard,
             args.sort,
-            args.quiet
+            args.quiet,
+            args.keep_reference
         )
     finally:
         if args is not None:
