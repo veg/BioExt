@@ -38,7 +38,7 @@ def _to_cigarstring(cigar):
 def _to_seqrecord(samfile, read):
 
     seq = Seq(
-        read.seq.decode('ascii'),
+        read.seq,
         single_letter_alphabet
         )
 
