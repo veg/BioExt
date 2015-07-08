@@ -107,12 +107,8 @@ def _from_seqrecord(header, record):
     tlen = record.annotations.get('template_length', 0)
     qual = record.letter_annotations.get('phred_quality', None)
 
-    if 'edit_distance' in record.annotations:
-        tags = [('NM', record.annotations['edit_distance'])]
-    else:
-        tags = []
 
-    read = pysam.AlignedRead()
+    read = pysam.AlignedSegment()
 
     read.qname = qname
     read.tid = tid
@@ -125,7 +121,12 @@ def _from_seqrecord(header, record):
     read.pnext = pnext
     read.tlen = tlen
     read.qual = qual
-    read.tags = tags
+
+    if 'edit_distance' in record.annotations:
+        read.set_tag('NM', record.annotations['edit_distance'])
+    else:
+        tags = []
+
 
     # TODO: enable this when the method exists
     # read.validate()
