@@ -7,8 +7,6 @@ import numpy
 
 from setuptools import Extension, setup
 
-from BioExt import __version__ as _bioext_version
-from BioExt.references._factory import _installrefdirs
 
 
 np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
@@ -51,7 +49,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version=_bioext_version,
+    version='0.17.2',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -119,7 +117,7 @@ setup(
         'BioExt': [
             'data/fonts/ttf/*.ttf',
             'data/scorematrices/*.txt'
-            ] + _installrefdirs
+            ]
         },
     scripts=[
         'scripts/bam2fna',
@@ -135,10 +133,12 @@ setup(
         # 'scripts/variants'
         ],
     ext_modules=ext_modules,
-    requires=[
-        'Bio (>=1.58)',
-        'matplotlib (>=1.2.1)',
-        'numpy (>=1.6)',
-        'pysam (>=0.7.5)',
+    install_requires=[
+        'biopython >=1.58',
+        'matplotlib >=1.2.1',
+        'numpy >=1.6',
+        'scipy >=0.15',
+        'pysam >=0.7.5',
+        'six'
         ]
     )
