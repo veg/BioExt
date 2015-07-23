@@ -6,8 +6,7 @@ import os.path
 import numpy
 
 from setuptools import Extension, setup
-
-
+from BioExt.references._factory import _installrefdirs
 
 np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
 
