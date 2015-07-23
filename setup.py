@@ -116,7 +116,7 @@ setup(
         'BioExt': [
             'data/fonts/ttf/*.ttf',
             'data/scorematrices/*.txt'
-            ]
+            ] + _installrefdirs
         },
     scripts=[
         'scripts/bam2fna',
