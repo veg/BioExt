@@ -22,12 +22,6 @@ ext_modules = [
         extra_compile_args=['-O3']
         ),
     Extension(
-        'BioExt.graphing._count',
-        sources=[os.path.join('BioExt', 'graphing', '_count.c')],
-        include_dirs=np_inc,
-        extra_compile_args=['-O3']
-        ),
-    Extension(
         'BioExt.merge._merge',
         sources=[
             os.path.join('BioExt', 'merge', '_merge.c'),
@@ -48,7 +42,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version='0.17.2',
+    version='0.17.3',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -62,7 +56,6 @@ setup(
         'BioExt.errorize',
         'BioExt.freetype',
         'BioExt.freetype.ft_enums',
-        'BioExt.graphing',
         'BioExt.io',
         'BioExt.io.BamIO',
         'BioExt.io.LazyAlignIO',
@@ -91,7 +84,6 @@ setup(
         'BioExt.errorize': 'BioExt/errorize',
         'BioExt.freetype': 'BioExt/freetype',
         'BioExt.freetype.ft_enums': 'BioExt/freetype/ft_enums',
-        'BioExt.graphing': 'BioExt/graphing',
         'BioExt.io': 'BioExt/io',
         'BioExt.io.BamIO': 'BioExt/io/BamIO',
         'BioExt.io.LazyAlignIO': 'BioExt/io/LazyAlignIO',
@@ -123,7 +115,6 @@ setup(
         'scripts/bam2msa',
         'scripts/bamclip',
         'scripts/bealign',
-        'scripts/begraph',
         'scripts/clipedge',
         'scripts/consensus',
         'scripts/msa2bam',
@@ -134,7 +125,6 @@ setup(
     ext_modules=ext_modules,
     install_requires=[
         'biopython >=1.58',
-        'matplotlib >=1.2.1',
         'numpy >=1.6',
         'scipy >=0.15',
         'pysam >=0.7.5',
