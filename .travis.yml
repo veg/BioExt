@@ -1,0 +1,48 @@
+language: python
+branches:
+only:
+  - master
+python:
+  - "3.4"
+
+cache:
+  directories:
+      - $HOME/.pip-cache/
+
+addons:
+  apt:
+    packages:
+        - gfortran 
+        - libopenblas-dev
+        - liblapack-dev
+        - cmake
+
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod a+x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+  - sudo chmod 777 /usr/local/bin
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy
+  - pip install biopython
+
+install:
+  - pip install --upgrade pip
+  - pip install coveralls
+
+script: 
+  - python setup.py install
+  - python -c 'import BioExt'
+  - cd tests && nosetests uds.py
+notifications:
+    email:
+        recipients:
+            - sweaver@ucsd.edu
+            - spond@ucsd.edu
+            - jwertheim@ucsd.edu
+        on_success: always
+        on_failure: always
+
+after_success:
+  - coveralls

@@ -7,6 +7,7 @@ from ctypes import c_char
 from multiprocessing import Array
 from operator import itemgetter
 from sys import stderr
+from copy import copy
 
 from Bio.Align import MultipleSeqAlignment
 
@@ -166,7 +167,7 @@ def align_to_refseq(
         discards.append(record)
 
     alignment = MultipleSeqAlignment([])
-    
+
     alignment_length = len(reference)
 
     def suffix_pad (record):
