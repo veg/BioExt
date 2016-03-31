@@ -7,6 +7,7 @@ from ctypes import c_char
 from multiprocessing import Array
 from operator import itemgetter
 from sys import stderr
+from copy import copy
 
 from Bio.Align import MultipleSeqAlignment
 
@@ -167,9 +168,24 @@ def align_to_refseq(
 
     alignment = MultipleSeqAlignment([])
 
+    alignment_length = len(reference)
+
+    def suffix_pad (record):
+        deficit = alignment_length - len(record)
+        if deficit > 0:
+           return SeqRecord(
+               Seq(''.join((str(record.seq), '-' * deficit)), record.seq.alphabet),
+               id=record.id,
+               name=record.name,
+               dbxrefs=copy(record.dbxrefs),
+               description=record.description,
+               annotations=copy(record.annotations),
+               )
+        return record
+
     def output(records):
         for record in records:
-            alignment.append(gapful(gapless(record), insertions=False))
+            alignment.append(suffix_pad(gapful(gapless(record), insertions=False)))
 
     _align_par(
         reference,
