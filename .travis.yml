@@ -18,6 +18,7 @@ addons:
         - cmake
 
 before_install:
+  - pip install auxlib
   - pip install conda
   - conda init
   - conda update conda --yes
