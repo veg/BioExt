@@ -100,23 +100,25 @@ class Aligner:
 
         # set the default extension cost to 7.5% of the range
         magic = 40 / 3  # magic denominator for 7.5%
-        ext_cost = (score_matrix.max() - score_matrix.min()) / magic
+        min_score = -score_matrix.min()
+        max_score = score_matrix.max()
+        score_weight = max (min_score, max_score)
+        ext_cost = (max_score + min_score) / magic
         # we take the negation of the minimum,
         # because the implementation assumes these values are penalties,
         # and subtracts them in all places
-        min_score = -score_matrix.min()
 
         # sane defaults for various penalties
         if open_insertion is None:
-            open_insertion = 3.0 * min_score
+            open_insertion = 2 * score_weight
         if extend_insertion is None:
             extend_insertion = ext_cost
         if open_deletion is None:
-            open_deletion = 1.5 * min_score
+            open_deletion = 2 * score_weight
         if extend_deletion is None:
             extend_deletion = ext_cost
         if miscall_cost is None:
-            miscall_cost = min_score
+            miscall_cost = 3 * score_weight
 
         # compute the expected score, if necessary
         expected_score = Aligner._expected_score(
