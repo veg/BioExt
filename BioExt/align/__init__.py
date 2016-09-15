@@ -222,7 +222,7 @@ class Aligner:
         query = gapless(query)
 
         # if the reference and query are the same, we can return early
-        if len(ref) and ref == query:
+        if len(ref) and ref == str(query.seq):
             if self.__do_codon:
                 score = sum(self.__score_matrix[char, char] for char in _translate(ref))
             else:
