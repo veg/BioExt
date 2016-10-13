@@ -46,7 +46,7 @@ setup(
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
-    url='http://github.com/nlhepler/bioext',
+    url='http://github.com/veg/bioext',
     license='GNU GPL version 3',
     packages=[
         'BioExt',
