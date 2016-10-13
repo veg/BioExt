@@ -41,12 +41,12 @@ ext_modules = [
 
 
 setup(
-    name='bioext',
-    version='0.17.4',
+    name='biopython-extensions',
+    version='0.18.0',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
-    url='http://github.com/nlhepler/bioext',
+    url='http://github.com/veg/bioext',
     license='GNU GPL version 3',
     packages=[
         'BioExt',
