@@ -24,8 +24,7 @@ before_install:
   - pip install biopython
 
 install:
-  - pip install --upgrade pip
-  - python setup.py install
+  - pip install biopython-extensions
 
 script: 
   - python -c 'import BioExt'
