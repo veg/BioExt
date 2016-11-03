@@ -19,7 +19,7 @@ ext_modules = [
             ],
         include_dirs=np_inc,
         libraries=['m'],
-        extra_compile_args=['-O3']
+        extra_compile_args=['-O3', '-I%s' % os.path.abspath(os.path.join('BioExt', 'align'))]
         ),
     Extension(
         'BioExt.merge._merge',
@@ -27,7 +27,7 @@ ext_modules = [
             os.path.join('BioExt', 'merge', '_merge.c'),
             os.path.join('BioExt', 'merge', 'merge.cpp')
             ],
-        extra_compile_args=['-O3']
+        extra_compile_args=['-O3', '-I%s' % os.path.abspath(os.path.join('BioExt', 'merge'))]
         ),
     Extension(
         'BioExt.rateclass._rateclass',
@@ -35,7 +35,7 @@ ext_modules = [
             os.path.join('BioExt', 'rateclass', '_rateclass.cpp'),
             os.path.join('BioExt', 'rateclass', 'rateclass.cpp')
             ],
-        extra_compile_args=['-O3']
+        extra_compile_args=['-O3', '-I%s' % os.path.abspath(os.path.join('BioExt', 'rateclass'))]
         )
     ]
 
