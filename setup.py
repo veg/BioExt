@@ -127,7 +127,6 @@ setup(
         'biopython >=1.58',
         'numpy >=1.6',
         'scipy >=0.15',
-        'pysam >=0.7.5,<0.9',
-        'six'
+        'pysam >=0.7.5,<0.9'
         ]
     )
