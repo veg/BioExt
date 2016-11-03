@@ -42,7 +42,7 @@ ext_modules = [
 
 setup(
     name='biopython-extensions',
-    version='0.18.0',
+    version='0.18.1',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
