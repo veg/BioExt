@@ -19,12 +19,10 @@ addons:
 
 before_install:
   - pip install numpy
-  - pip install scipy
-  - pip install cython
   - pip install biopython
 
 install:
-  - pip install biopython-extensions
+  - python setup.py install
 
 script: 
   - python -c 'import BioExt'
