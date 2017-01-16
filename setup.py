@@ -19,7 +19,7 @@ ext_modules = [
             ],
         include_dirs=np_inc,
         libraries=['m'],
-        extra_compile_args=['-O3']
+        extra_compile_args=['-O3', '-I.']
         ),
     Extension(
         'BioExt.merge._merge',
@@ -27,7 +27,7 @@ ext_modules = [
             os.path.join('BioExt', 'merge', '_merge.c'),
             os.path.join('BioExt', 'merge', 'merge.cpp')
             ],
-        extra_compile_args=['-O3']
+        extra_compile_args=['-O3', '-I.']
         ),
     Extension(
         'BioExt.rateclass._rateclass',
@@ -35,14 +35,14 @@ ext_modules = [
             os.path.join('BioExt', 'rateclass', '_rateclass.cpp'),
             os.path.join('BioExt', 'rateclass', 'rateclass.cpp')
             ],
-        extra_compile_args=['-O3']
+        extra_compile_args=['-O3', '-I.']
         )
     ]
 
 
 setup(
     name='biopython-extensions',
-    version='0.18.0',
+    version='0.18.6',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
