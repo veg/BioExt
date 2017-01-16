@@ -27,12 +27,10 @@ def write(records, path, reference=None, new_style=False, header=None):
 def sort(path):
     try:
         fd, tmp_path = mkstemp()
-
         close(fd)
 
         if exists(path) and getsize(path):
-            pysam_sort(path, tmp_path)
-            tmp_path += '.bam'  # sort adds the .bam suffix automatically
+            pysam_sort("-o", tmp_path, path)
             move(tmp_path, path)
     finally:
         if exists(tmp_path):
