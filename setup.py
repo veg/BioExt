@@ -5,10 +5,16 @@ from __future__ import division, print_function
 import os.path
 import numpy
 
+from Cython.Build import cythonize
 from setuptools import Extension, setup
 from BioExt.references._factory import _installrefdirs
 
 np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
+
+
+sourcefiles = [os.path.join("BioExt", "tn93", "_tn93.pyx"),
+               os.path.join("BioExt", "tn93", "tn93.c")]
+tn93_extension = cythonize([Extension("BioExt.tn93._tn93", sourcefiles)])
 
 ext_modules = [
     Extension(
@@ -36,15 +42,8 @@ ext_modules = [
             os.path.join('BioExt', 'rateclass', 'rateclass.cpp')
             ],
         extra_compile_args=['-O3', '-I.']
-        ),
-    Extension(
-      'BioExt.tn93._tn93',
-      sources=[
-        os.path.join('BioExt','tn93',"_tn93.c")
-        ],
-      extra_compile_args=['-O3']
-      )
-    ]
+        )
+    ] + tn93_extension
 
 
 setup(
