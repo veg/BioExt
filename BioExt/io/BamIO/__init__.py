@@ -29,10 +29,10 @@ def sort(path):
         fd, tmp_path = mkstemp()
 
         close(fd)
+        print(path)
 
         if exists(path) and getsize(path):
-            pysam_sort(path, tmp_path)
-            tmp_path += '.bam'  # sort adds the .bam suffix automatically
+            pysam_sort("-o", tmp_path, path)
             move(tmp_path, path)
     finally:
         if exists(tmp_path):
