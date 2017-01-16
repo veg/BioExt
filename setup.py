@@ -43,7 +43,7 @@ ext_modules = [
         os.path.join('BioExt','tn93',"_tn93.pyx"),
         os.path.join('BioExt','tn93',"_tn93.c")
         ],
-      extra_compile_args=['-O3']
+      extra_compile_args=['-O3', '-I']
       )
     ]
 
