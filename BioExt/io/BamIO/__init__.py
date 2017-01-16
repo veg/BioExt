@@ -27,9 +27,7 @@ def write(records, path, reference=None, new_style=False, header=None):
 def sort(path):
     try:
         fd, tmp_path = mkstemp()
-
         close(fd)
-        print(path)
 
         if exists(path) and getsize(path):
             pysam_sort("-o", tmp_path, path)
