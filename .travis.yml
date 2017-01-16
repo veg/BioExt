@@ -35,8 +35,8 @@ notifications:
         recipients:
             - sweaver@temple.edu
             - spond@temple.edu
-        on_success: always
-        on_failure: always
+        on_success: change
+        on_failure: change
 
 after_success:
   - coveralls
