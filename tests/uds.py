@@ -6,18 +6,20 @@ from Bio import SeqIO
 from BioExt.uds import align_to_refseq
 from BioExt.scorematrices import BLOSUM62
 from BioExt.references import hxb2
+import os
 
 def setup():
     ''' Define sequence reference and records '''
-
 
 @nose.with_setup(setup=setup)
 def test_align_to_refseq_suffix_pad():
     ''' Ensure that sequence that ends with a '-' will not cause an error '''
 
+
     # Load reference sequence
     refseq = hxb2.prrt.load()
-    seqpath = "./TEST.FASTA"
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    seqpath = os.path.join(dir_path, "./rsrc/TEST.FASTA")
 
     # Load sequences
     with open(seqpath) as fh:
