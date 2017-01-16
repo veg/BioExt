@@ -40,10 +40,9 @@ ext_modules = [
     Extension(
       'BioExt.tn93._tn93',
       sources=[
-        os.path.join('BioExt','tn93',"_tn93.pyx"),
         os.path.join('BioExt','tn93',"_tn93.c")
         ],
-      extra_compile_args=['-O3', '-I.']
+      extra_compile_args=['-O3']
       )
     ]
 
