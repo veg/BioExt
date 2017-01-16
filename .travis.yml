@@ -26,12 +26,15 @@ install:
 
 script: 
   - python -c 'import BioExt'
-  - cd tests && nosetests uds.py
+  - nosetests tests/uds.py
+  - nosetests tests/bam2msa.py
+  - nosetests tests/tn93.py
 
 notifications:
     email:
         recipients:
             - sweaver@temple.edu
+            - spond@temple.edu
         on_success: always
         on_failure: always
 

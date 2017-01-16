@@ -36,13 +36,21 @@ ext_modules = [
             os.path.join('BioExt', 'rateclass', 'rateclass.cpp')
             ],
         extra_compile_args=['-O3', '-I.']
-        )
+        ),
+    Extension(
+      'BioExt.tn93._tn93',
+      sources=[
+        os.path.join('BioExt','tn93',"_tn93.pyx"),
+        os.path.join('BioExt','tn93',"_tn93.c")
+        ],
+      extra_compile_args=['-O3']
+      )
     ]
 
 
 setup(
-    name='biopython-extensions',
-    version='0.18.6',
+    name='bioext',
+    version='0.19.0',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -73,6 +81,7 @@ setup(
         'BioExt.references',
         'BioExt.scorematrices',
         'BioExt.stats',
+        'BioExt.tn93',
         'BioExt.uds',
         'BioExt.untranslate'
         ],
@@ -101,6 +110,7 @@ setup(
         'BioExt.references': 'BioExt/references',
         'BioExt.scorematrices': 'BioExt/scorematrices',
         'BioExt.stats': 'BioExt/stats',
+        'BioExt.tn93': 'BioExt/tn93',
         'BioExt.uds': 'BioExt/uds',
         'BioExt.untranslate': 'BioExt/untranslate'
         },
