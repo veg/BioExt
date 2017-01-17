@@ -14,7 +14,13 @@ np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
 
 sourcefiles = [os.path.join("BioExt", "tn93", "_tn93.pyx"),
                os.path.join("BioExt", "tn93", "tn93.c")]
-tn93_extension = cythonize([Extension("BioExt.tn93._tn93", sourcefiles)])
+
+tn93_extension = cythonize([
+    Extension(
+        "BioExt.tn93._tn93",
+        include_dirs=[os.path.join("BioExt", "tn93")],
+        sources=sourcefiles
+        )])
 
 ext_modules = [
     Extension(
@@ -48,7 +54,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version='0.19.0',
+    version='0.19.1',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
