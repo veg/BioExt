@@ -1,2 +1,2 @@
 ##Installation
-`pip install biopython-extensions`
+`pip install bioext`
