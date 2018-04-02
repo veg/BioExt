@@ -54,7 +54,7 @@ if __name__ == '__main__':
     import sys
 
     parser = argparse.ArgumentParser(
-        description='convert a BAM file to a MSA, removing insertions'
+        description='screen for duplicate sequences and squash them'
         )
 
     parser.add_argument(
