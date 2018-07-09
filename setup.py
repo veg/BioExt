@@ -11,7 +11,6 @@ from BioExt.references._factory import _installrefdirs
 
 np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
 
-
 sourcefiles = [os.path.join("BioExt", "tn93", "_tn93.pyx"),
                os.path.join("BioExt", "tn93", "tn93.c")]
 
