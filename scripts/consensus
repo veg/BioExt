@@ -49,12 +49,13 @@ def proper(string):
 
 def _consensus(reads, quiver):
 
-    poa_config = cc.PoaConfig(USE_LOCAL_ALIGNMENT)
+    #poa_config = cc.PoaConfig(USE_LOCAL_ALIGNMENT)
+    poa_config = cc.DefaultPoaConfig(cc.AlignMode_GLOBAL)
 
     consensus = cc.PoaConsensus.FindConsensus(
         reads,
         poa_config
-        ).Sequence()
+        ).Sequence
 
     if quiver:
         qv_config = cc.QuiverConfig(
@@ -150,12 +151,14 @@ def main(
         if not quiet:
             print('', file=sys.stderr)
 
-        poa_config = cc.PoaConfig(True)
+        #poa_config = cc.PoaConfig(True)
+        poa_config = cc.DefaultPoaConfig(True)
+        parts = ["GGG", "TGGG"]
 
         consensus = cc.PoaConsensus.FindConsensus(
             parts,
             poa_config
-            ).Sequence()
+            ).Sequence
 
         id_ = 'consensus'
 
