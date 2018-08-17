@@ -49,8 +49,7 @@ def proper(string):
 
 def _consensus(reads, quiver):
 
-    #poa_config = cc.PoaConfig(USE_LOCAL_ALIGNMENT)
-    poa_config = cc.DefaultPoaConfig(cc.AlignMode_GLOBAL)
+    poa_config = cc.DefaultPoaConfig(USE_LOCAL_ALIGNMENT)
 
     consensus = cc.PoaConsensus.FindConsensus(
         reads,
@@ -151,9 +150,7 @@ def main(
         if not quiet:
             print('', file=sys.stderr)
 
-        #poa_config = cc.PoaConfig(True)
         poa_config = cc.DefaultPoaConfig(True)
-        parts = ["GGG", "TGGG"]
 
         consensus = cc.PoaConsensus.FindConsensus(
             parts,
