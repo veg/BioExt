@@ -1,10 +1,6 @@
 
 from __future__ import division, print_function
-
 from os.path import join, exists, splitext
-
-from Bio import SeqIO
-
 
 __all__ = []
 
@@ -18,6 +14,8 @@ def _lazyseq(seqdir, seqfile):
 
 
 class Lazyseq(object):
+
+    from Bio import SeqIO
 
     def __init__(self, seqpath):
         self._seqpath = seqpath
