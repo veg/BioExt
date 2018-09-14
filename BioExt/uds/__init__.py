@@ -4,7 +4,6 @@ from __future__ import division, print_function
 import os
 
 from ctypes import c_char
-from multiprocessing import Array
 from joblib import Parallel, delayed
 from operator import itemgetter
 from sys import stderr
@@ -46,7 +45,7 @@ def _rc(record):
 def _align(record, aln, ref, ref_name, do_revcomp):
     records = (record, _rc(record)) if do_revcomp else (record,)
     score, ref_, record = max(
-        (aln(ref.value.decode('utf-8'), record) for record in records),
+        (aln(ref.decode('utf-8'), record) for record in records),
         key=itemgetter(0)
         )
     record_ = compute_cigar(ref_, record, ref_name)
@@ -95,7 +94,7 @@ def _align_par(
             'reference must be one of str, Bio.Seq, Bio.SeqRecord'
             )
 
-    reference_ = Array(c_char, refstr.encode('utf-8'))
+    reference_ = refstr.encode('utf-8')
 
     def keep(score, record):
         if aln.expected(score):
@@ -118,7 +117,6 @@ def _align_par(
         for score, record in Parallel(
             n_jobs=n_jobs,
             verbose=0,
-            require='sharedmem',
             pre_dispatch='3 * n_jobs',  # triple-buffering
             )(delayed_(i, _align)(record, aln, reference_, reference.name, reverse_complement) for i, record in enumerate(records, start=1))
 
