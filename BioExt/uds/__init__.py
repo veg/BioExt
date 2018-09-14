@@ -5,6 +5,7 @@ import os
 
 from ctypes import c_char
 from multiprocessing import Array
+from joblib import Parallel, delayed
 from operator import itemgetter
 from sys import stderr
 from copy import copy
@@ -15,7 +16,6 @@ from Bio.Seq import Seq, reverse_complement as rc
 from Bio.SeqRecord import SeqRecord
 
 from BioExt.align import Aligner
-from BioExt.joblib import Parallel, delayed
 from BioExt.misc import compute_cigar, gapful, gapless
 
 
@@ -43,7 +43,7 @@ def _rc(record):
 
 
 # aln, ref, ref_name, and do_revcomp are set by set_globals below
-def _align(record):
+def _align(record, aln, ref, ref_name, do_revcomp):
     records = (record, _rc(record)) if do_revcomp else (record,)
     score, ref_, record = max(
         (aln(ref.value.decode('utf-8'), record) for record in records),
@@ -118,19 +118,12 @@ def _align_par(
         for score, record in Parallel(
             n_jobs=n_jobs,
             verbose=0,
+            require='sharedmem',
             pre_dispatch='3 * n_jobs',  # triple-buffering
-            initializer=_set_globals,
-            initargs=[
-                ('aln', aln),
-                ('ref', reference_),
-                ('ref_name', reference.name),
-                ('do_revcomp', reverse_complement)
-                ]
-            ).lazy(
-                delayed_(i, _align)(record)
-                for i, record in enumerate(records, start=1)
-                )
+            )(delayed_(i, _align)(record, aln, reference_, reference.name, reverse_complement) for i, record in enumerate(records, start=1))
+
         if keep(score, record)
+
         )
 
     if not quiet:
