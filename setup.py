@@ -53,7 +53,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version='0.19.2',
+    version='0.19.3',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -71,8 +71,6 @@ setup(
         'BioExt.io.BamIO',
         'BioExt.io.LazyAlignIO',
         'BioExt.io.SamIO',
-        'BioExt.joblib',
-        'BioExt.joblib.test',
         'BioExt.merge',
         'BioExt.misc',
         'BioExt.ndarray',
@@ -100,8 +98,6 @@ setup(
         'BioExt.io.BamIO': 'BioExt/io/BamIO',
         'BioExt.io.LazyAlignIO': 'BioExt/io/LazyAlignIO',
         'BioExt.io.SamIO': 'BioExt/io/SamIO',
-        'BioExt.joblib': 'BioExt/joblib',
-        'BioExt.joblib.test': 'BioExt/joblib/test',
         'BioExt.merge': 'BioExt/merge',
         'BioExt.misc': 'BioExt/misc',
         'BioExt.ndarray': 'BioExt/ndarray',
@@ -141,6 +137,7 @@ setup(
         'numpy >=1.6',
         'scipy >=0.15',
         'pysam >=0.9',
+        'joblib',
         'six'
         ]
     )

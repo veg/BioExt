@@ -4,7 +4,7 @@ from __future__ import division, print_function
 import os
 
 from ctypes import c_char
-from multiprocessing import Array
+from joblib import Parallel, delayed
 from operator import itemgetter
 from sys import stderr
 from copy import copy
@@ -15,7 +15,6 @@ from Bio.Seq import Seq, reverse_complement as rc
 from Bio.SeqRecord import SeqRecord
 
 from BioExt.align import Aligner
-from BioExt.joblib import Parallel, delayed
 from BioExt.misc import compute_cigar, gapful, gapless
 
 
@@ -43,10 +42,10 @@ def _rc(record):
 
 
 # aln, ref, ref_name, and do_revcomp are set by set_globals below
-def _align(record):
+def _align(record, aln, ref, ref_name, do_revcomp):
     records = (record, _rc(record)) if do_revcomp else (record,)
     score, ref_, record = max(
-        (aln(ref.value.decode('utf-8'), record) for record in records),
+        (aln(ref.decode('utf-8'), record) for record in records),
         key=itemgetter(0)
         )
     record_ = compute_cigar(ref_, record, ref_name)
@@ -95,7 +94,7 @@ def _align_par(
             'reference must be one of str, Bio.Seq, Bio.SeqRecord'
             )
 
-    reference_ = Array(c_char, refstr.encode('utf-8'))
+    reference_ = refstr.encode('utf-8')
 
     def keep(score, record):
         if aln.expected(score):
@@ -119,18 +118,10 @@ def _align_par(
             n_jobs=n_jobs,
             verbose=0,
             pre_dispatch='3 * n_jobs',  # triple-buffering
-            initializer=_set_globals,
-            initargs=[
-                ('aln', aln),
-                ('ref', reference_),
-                ('ref_name', reference.name),
-                ('do_revcomp', reverse_complement)
-                ]
-            ).lazy(
-                delayed_(i, _align)(record)
-                for i, record in enumerate(records, start=1)
-                )
+            )(delayed_(i, _align)(record, aln, reference_, reference.name, reverse_complement) for i, record in enumerate(records, start=1))
+
         if keep(score, record)
+
         )
 
     if not quiet:
