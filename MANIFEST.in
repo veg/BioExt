@@ -1,3 +1,4 @@
+include *.pyx
 graft BioExt/align
 graft BioExt/merge
 graft BioExt/rateclass
