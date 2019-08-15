@@ -14,7 +14,7 @@ from BioExt.args import (
     )
 
 from BioExt.uds import _align_par
-from BioExt.misc import compute_cigar, gapless
+from BioExt.misc import compute_cigar, gapless, translate_ambiguous
 
 from BioExt.scorematrices import (
     DNAScoreMatrix,
@@ -74,3 +74,19 @@ def test_align():
 @nose.with_setup(setup=setup)
 def test_cigar():
    pass
+
+@nose.with_setup(setup=setup)
+def test_translate_ambiguous():
+    ''' Ensure ambiguous sequences are translated '''
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+
+    ## Load reference sequence
+    seqpath = os.path.join(dir_path, "./rsrc/SHORT.FASTA")
+    output_file = os.path.join(dir_path, "./rsrc/SHORT.FASTA.test.bam")
+
+    records = SeqIO.parse(seqpath, 'fasta')
+
+    translated = translate_ambiguous(next(records))
+
+
