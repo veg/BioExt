@@ -1,4 +1,6 @@
 include *.pyx
+include BioExt/tn93/*.h
 graft BioExt/align
 graft BioExt/merge
 graft BioExt/rateclass
+graft BioExt/tn93
