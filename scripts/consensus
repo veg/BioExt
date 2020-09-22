@@ -7,7 +7,6 @@ import sys
 from random import shuffle
 from re import compile as re_compile
 
-from Bio.Alphabet import single_letter_alphabet
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -161,7 +160,7 @@ def main(
 
         output_handle.write(
             SeqRecord(
-                Seq(consensus, single_letter_alphabet),
+                Seq(consensus),
                 id=id_,
                 name=id_,
                 description=id_

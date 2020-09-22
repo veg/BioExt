@@ -327,11 +327,11 @@ def gapless(seq):
     if isinstance(seq, str):
         return regexp.sub('', seq)
     elif isinstance(seq, Seq):
-        return Seq(regexp.sub('', str(seq)), seq.alphabet)
+        return Seq(regexp.sub('', str(seq)))
     elif isinstance(seq, SeqRecord):
         # TODO: support features and letter_annotations here
         return SeqRecord(
-            Seq(regexp.sub('', str(seq.seq)), seq.seq.alphabet),
+            Seq(regexp.sub('', str(seq.seq))),
             id=seq.id,
             name=seq.name,
             dbxrefs=copy(seq.dbxrefs),
@@ -362,7 +362,7 @@ def gapful(record, insertions=True):
         if mode != 'D':
             p += num
     return SeqRecord(
-        Seq(''.join(seqparts), record.seq.alphabet),
+        Seq(''.join(seqparts)),
         id=record.id,
         name=record.name,
         dbxrefs=copy(record.dbxrefs),
@@ -420,7 +420,7 @@ def clip(record, start, end, insertions=True, span=False):
     annotations['position'] = min(poses)
 
     return SeqRecord(
-        Seq(''.join(base for base in bases if base), record.seq.alphabet),
+        Seq(''.join(base for base in bases if base)),
         id=record.id,
         name=record.name,
         dbxrefs=copy(record.dbxrefs),

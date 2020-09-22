@@ -1,7 +1,5 @@
 
 from os.path import abspath
-
-from Bio import Alphabet
 from Bio import SeqIO
 
 
@@ -17,13 +15,8 @@ def read(handle, format):
 class LazyMultipleSeqAlignment:
 
     def __init__(self, handle, format, alphabet=None):
-        if alphabet is not None:
-            if (not isinstance(alphabet, Alphabet.Alphabet)
-                    or isinstance(alphabet, Alphabet.AlphabetEncoder)):
-                raise ValueError('Invalide alphabet argument')
-            self._alphabet = alphabet
-        else:
-            self._alphabet = Alphabet.single_letter_alphabet
+
+        self._alphabet = alphabet
 
         length = None
         nr = 0

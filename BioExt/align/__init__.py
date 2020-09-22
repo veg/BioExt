@@ -313,7 +313,7 @@ class Aligner:
 
         if isinstance(ref, SeqRecord):
             ref_aligned_ = SeqRecord(
-                Seq(ref_aligned, ref.seq.alphabet),
+                Seq(ref_aligned),
                 id=ref.id,
                 name=ref.name,
                 description=ref.description,
@@ -321,13 +321,13 @@ class Aligner:
                 annotations=ref.annotations
                 )
         elif isinstance(ref, Seq):
-            ref_aligned_ = Seq(ref_aligned, ref.seq.alphabet)
+            ref_aligned_ = Seq(ref_aligned)
         else:
             ref_aligned_ = ref_aligned
 
         if isinstance(query, SeqRecord):
             query_aligned_ = SeqRecord(
-                Seq(query_aligned, query.seq.alphabet),
+                Seq(query_aligned),
                 id=query.id,
                 name=query.name,
                 description=query.description,
@@ -335,7 +335,7 @@ class Aligner:
                 annotations=query.annotations
                 )
         elif isinstance(query, Seq):
-            query_aligned_ = Seq(query_aligned, query.seq.alphabet)
+            query_aligned_ = Seq(query_aligned)
         else:
             query_aligned_ = query_aligned
 

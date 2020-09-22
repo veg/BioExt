@@ -6,7 +6,6 @@ from libc.stdlib cimport free, malloc, realloc
 from re import compile as re_compile
 from sys import stderr
 
-from Bio.Alphabet import single_letter_alphabet
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -174,7 +173,7 @@ cdef _to_seqrecord(int idx, aligned_t * cluster):
     name = 'cluster_{0:d}_{1:d}r'.format(idx, cluster.ncontrib)
 
     return SeqRecord(
-        Seq(''.join(seq), single_letter_alphabet),
+        Seq(''.join(seq)),
         id=name,
         name=name,
         description=name,

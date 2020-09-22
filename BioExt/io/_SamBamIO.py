@@ -5,7 +5,6 @@ from hashlib import md5
 from re import compile as re_compile
 
 from Bio.Align import MultipleSeqAlignment
-from Bio.Alphabet import single_letter_alphabet
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -37,10 +36,7 @@ def _to_cigarstring(cigar):
 
 def _to_seqrecord(samfile, read):
 
-    seq = Seq(
-        read.seq,
-        single_letter_alphabet
-        )
+    seq = Seq(read.seq)
 
     qname = read.qname
     rname = samfile.getrname(read.tid)

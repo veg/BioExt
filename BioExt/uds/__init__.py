@@ -165,7 +165,7 @@ def align_to_refseq(
         deficit = alignment_length - len(record)
         if deficit > 0:
            return SeqRecord(
-               Seq(''.join((str(record.seq), '-' * deficit)), record.seq.alphabet),
+               Seq(''.join((str(record.seq), '-' * deficit))),
                id=record.id,
                name=record.name,
                dbxrefs=copy(record.dbxrefs),

@@ -3,7 +3,7 @@ from __future__ import division, print_function
 
 import numpy as np
 
-from scipy.misc import comb, factorial
+from scipy.special import comb, factorial
 from scipy.optimize import fmin_cobyla
 from scipy.stats import rv_continuous, rv_discrete
 from scipy.special import beta, gamma
