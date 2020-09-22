@@ -53,7 +53,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version='0.19.7',
+    version='0.19.8',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -133,7 +133,7 @@ setup(
         ],
     ext_modules=ext_modules,
     install_requires=[
-        'biopython >=1.58',
+        'biopython >=1.78',
         'numpy >=1.6',
         'scipy >=0.15',
         'pysam >=0.9',
