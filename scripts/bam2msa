@@ -50,7 +50,7 @@ def main(bam_file, out_handle, start=None, end=None):
                 (seq + ('-' * (length - len(seq))))[start:end]
                 for seq in (
                     gapful(_to_seqrecord(samfile, record), insertions=False)
-                    for record in samfile.fetch(*fetch_args)
+                    for record in samfile.fetch(*fetch_args) if record.seq is not None
                     )
                 ),
             out_handle,
