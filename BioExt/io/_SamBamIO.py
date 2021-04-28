@@ -127,6 +127,12 @@ def _from_seqrecord(header, record):
     # TODO: enable this when the method exists
     # read.validate()
 
+    # CIGAR and query sequence lengths differ
+    if(read.infer_read_length() != len(read.seq)):
+        msg = '\nWARNING : CIGAR and query sequence lengths differ for %s, %d != %d -- skipping' % (read.qname, read.infer_read_length(), len(read.seq))
+        print(msg)
+        return False
+
     return read
 
 
@@ -178,8 +184,10 @@ def _write(mode, records, path, reference, new_style, header):
                     raise RuntimeError(msg)
 
         for record in iterate(records):
-            if samfile.write(_from_seqrecord(header, record)):
-                count += 1
+            samread_from_record = _from_seqrecord(header, record)
+            if samread_from_record:
+                if samfile.write(samread_from_record):
+                    count += 1
     finally:
         samfile.close()
 
