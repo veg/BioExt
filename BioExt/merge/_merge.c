@@ -709,7 +709,6 @@ static char __pyx_k_16[] = "single_letter_alphabet";
 static char __pyx_k_17[] = "failed to allocate memory for reads";
 static char __pyx_k_19[] = "failed to allocate memory for opts";
 static char __pyx_k_21[] = "failed to merge clusters, likely a memory allocation failure";
-static char __pyx_k_27[] = "Bio.Alphabet";
 static char __pyx_k_28[] = "Bio.Seq";
 static char __pyx_k_29[] = "Bio.SeqRecord";
 static char __pyx_k_32[] = "/Users/Lance/Pond/bioext/BioExt/merge/_merge.pyx";
@@ -761,7 +760,6 @@ static PyObject *__pyx_n_s_16;
 static PyObject *__pyx_kp_s_17;
 static PyObject *__pyx_kp_s_19;
 static PyObject *__pyx_kp_s_21;
-static PyObject *__pyx_n_s_27;
 static PyObject *__pyx_n_s_28;
 static PyObject *__pyx_n_s_29;
 static PyObject *__pyx_kp_s_3;
@@ -3425,7 +3423,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_17, __pyx_k_17, sizeof(__pyx_k_17), 0, 0, 1, 0},
   {&__pyx_kp_s_19, __pyx_k_19, sizeof(__pyx_k_19), 0, 0, 1, 0},
   {&__pyx_kp_s_21, __pyx_k_21, sizeof(__pyx_k_21), 0, 0, 1, 0},
-  {&__pyx_n_s_27, __pyx_k_27, sizeof(__pyx_k_27), 0, 0, 1, 1},
   {&__pyx_n_s_28, __pyx_k_28, sizeof(__pyx_k_28), 0, 0, 1, 1},
   {&__pyx_n_s_29, __pyx_k_29, sizeof(__pyx_k_29), 0, 0, 1, 1},
   {&__pyx_kp_s_3, __pyx_k_3, sizeof(__pyx_k_3), 0, 0, 1, 0},
@@ -3745,30 +3742,8 @@ PyMODINIT_FUNC PyInit__merge(void)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "BioExt/merge/_merge.pyx":9
- * from sys import stderr
- * 
- * from Bio.Alphabet import single_letter_alphabet             # <<<<<<<<<<<<<<
- * from Bio.Seq import Seq
- * from Bio.SeqRecord import SeqRecord
- */
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 9; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_INCREF(((PyObject *)__pyx_n_s_16));
-  PyList_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_n_s_16));
-  __Pyx_GIVEREF(((PyObject *)__pyx_n_s_16));
-  __pyx_t_2 = __Pyx_Import(((PyObject *)__pyx_n_s_27), ((PyObject *)__pyx_t_1), -1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 9; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_16); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 9; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_16, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 9; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
   /* "BioExt/merge/_merge.pyx":10
  * 
- * from Bio.Alphabet import single_letter_alphabet
  * from Bio.Seq import Seq             # <<<<<<<<<<<<<<
  * from Bio.SeqRecord import SeqRecord
  * 
@@ -3788,7 +3763,6 @@ PyMODINIT_FUNC PyInit__merge(void)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "BioExt/merge/_merge.pyx":11
- * from Bio.Alphabet import single_letter_alphabet
  * from Bio.Seq import Seq
  * from Bio.SeqRecord import SeqRecord             # <<<<<<<<<<<<<<
  * 
