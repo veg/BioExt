@@ -60,7 +60,9 @@ def main(
     else:
         def allseqs(records):
             if keep_reference:
-                 yield compute_cigar(reference, reference)
+                with open('reference.fa', 'w') as fh:
+                    SeqIO.write(reference, fh, 'fasta')
+                yield compute_cigar(reference, reference)
             for record in records:
                 yield record
 
