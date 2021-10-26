@@ -12,7 +12,6 @@ from BioExt.misc import compute_cigar
 
 import pysam
 
-
 _VALID_CHARS = re_compile(r'[^A-Z]')
 _CIGAR_MODES = 'MIDNSHP=X'
 
@@ -170,7 +169,7 @@ def _write(mode, records, path, reference, new_style, header):
                     'M5': hasher.hexdigest()
                     }]
 
-        samfile = pysam.Samfile(path, mode, header=header)
+        samfile = pysam.AlignmentFile(path, mode, header=header)
 
         def iterate(records):
             for record in records:
