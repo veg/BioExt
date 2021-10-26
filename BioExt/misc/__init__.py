@@ -320,18 +320,20 @@ def compute_cigar(reference, record, reference_name=None, new_style=False):
     return record
 
 
+def _gapless(seq):
+    return ''.join(c for c in seq if c not in _GAPS)
+
+
 def gapless(seq):
-    if not any(char in _GAPS for char in seq):
-        return seq
-    regexp = re_compile('[{0}]+'.format(''.join(_GAPS)))
+    gapless_seq = _gapless(seq)
     if isinstance(seq, str):
-        return regexp.sub('', seq)
-    elif isinstance(seq, Seq):
-        return Seq(regexp.sub('', str(seq)))
-    elif isinstance(seq, SeqRecord):
+        return gapless_seq
+    if isinstance(seq, Seq):
+        return Seq(gapless_seq)
+    if isinstance(seq, SeqRecord):
         # TODO: support features and letter_annotations here
         return SeqRecord(
-            Seq(regexp.sub('', str(seq.seq))),
+            gapless_seq,
             id=seq.id,
             name=seq.name,
             dbxrefs=copy(seq.dbxrefs),
@@ -340,8 +342,7 @@ def gapless(seq):
             annotations=copy(seq.annotations)
             # letter_annotations=seq.letter_annotations
             )
-    else:
-        raise ValueError('seq must have type SeqRecord, Seq, or str')
+    raise ValueError('seq must have type SeqRecord, Seq, or str')
 
 
 _cigar_regexp = re_compile(r'([0-9]+)([M=XID])')

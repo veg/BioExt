@@ -45,7 +45,7 @@ def _rc(record):
 def _align(record, aln, ref, ref_name, do_revcomp):
     records = (record, _rc(record)) if do_revcomp else (record,)
     score, ref_, record = max(
-        (aln(ref.decode('utf-8'), record) for record in records),
+        (aln(ref, record) for record in records),
         key=itemgetter(0)
         )
     record_ = compute_cigar(ref_, record, ref_name)
@@ -94,8 +94,6 @@ def _align_par(
             'reference must be one of str, Bio.Seq, Bio.SeqRecord'
             )
 
-    reference_ = refstr.encode('utf-8')
-
     def keep(score, record):
         if aln.expected(score):
             return True
@@ -118,7 +116,7 @@ def _align_par(
             n_jobs=n_jobs,
             verbose=0,
             pre_dispatch='3 * n_jobs',  # triple-buffering
-            )(delayed_(i, _align)(record, aln, reference_, reference.name, reverse_complement) for i, record in enumerate(records, start=1))
+            )(delayed_(i, _align)(record, aln, refstr, reference.name, reverse_complement) for i, record in enumerate(records, start=1))
 
         if keep(score, record)
 

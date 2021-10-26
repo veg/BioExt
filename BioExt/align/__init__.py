@@ -12,7 +12,7 @@ from Bio.Seq import Seq, translate as _translate
 from Bio.SeqRecord import SeqRecord
 
 from BioExt.align._align import _align, _compute_codon_matrices
-from BioExt.misc import gapless
+from BioExt.misc import _gapless
 from BioExt.scorematrices import ProteinScoreMatrix as _ProteinScoreMatrix
 
 
@@ -218,23 +218,13 @@ class Aligner:
         if do_affine is None:
             do_affine = self.__do_affine
 
-        ref = gapless(ref)
-        query = gapless(query)
-
-        # if the reference and query are the same, we can return early
-        if len(ref) and ref == str(query.seq):
-            if self.__do_codon:
-                score = sum(self.__score_matrix[char, char] for char in _translate(ref))
-            else:
-                score = sum(self.__score_matrix[char, char] for char in ref)
-            return score / len(ref), ref, query
-
         if isinstance(ref, SeqRecord):
             ref_ = str(ref.seq)
         elif isinstance(ref, Seq):
             ref_ = str(ref)
         else:
             ref_ = ref
+        ref_ = _gapless(ref_).upper()
 
         if isinstance(query, SeqRecord):
             query_ = str(query.seq)
@@ -242,78 +232,82 @@ class Aligner:
             query_ = str(query)
         else:
             query_ = query
+        query_ = _gapless(query_).upper()
 
-        # convert to uppercase, because _align assumes it
-        ref_ = ref_.upper()
-        query_ = query_.upper()
-
-        if self.__do_codon and len(ref_) % 3 != 0:
-            raise ValueError('when do_codon = True, len(ref) must be a multiple of 3')
-
-        # if do_codon, the query's length needs to be a multiple of 3
-#         if self.__do_codon and len(query_) % 3 != 0:
-#             ns = 3 - len(query_) % 3
-#             query_ += 'N' * ns
-#         else:
-#             ns = 0
-
-        # for shared memory safety, recreate matrices if the PID changed
-        current_pid = getpid()
-        if self.__cached_pid != current_pid:
-            self.__cached_pid = current_pid
-            self.__cached_score_matrix = np.empty((1,), dtype=float)
-            self.__cached_deletion_matrix = np.empty((1,), dtype=float)
-            self.__cached_insertion_matrix = np.empty((1,), dtype=float)
-
-        if self.__do_codon:
-            cache_size = (len(ref_) // 3 + 1) * (len(query_) + 1)
+        # if the reference and query are the same, we can return early
+        if len(ref_) and ref_ == query_:
+            if self.__do_codon:
+                score = sum(self.__score_matrix[char, char] for char in _translate(ref_))
+            else:
+                score = sum(self.__score_matrix[char, char] for char in ref_)
         else:
-            cache_size = (len(ref_) + 1) * (len(query_) + 1)
+            if self.__do_codon and len(ref_) % 3 != 0:
+                raise ValueError('when do_codon = True, len(ref) must be a multiple of 3')
 
-        if self.__cached_score_matrix.shape[0] < cache_size:
-            self.__cached_score_matrix.resize((cache_size,))
+            # if do_codon, the query's length needs to be a multiple of 3
+#           if self.__do_codon and len(query_) % 3 != 0:
+#               ns = 3 - len(query_) % 3
+#               query_ += 'N' * ns
+#           else:
+#               ns = 0
 
-        if do_affine:
-            if self.__cached_deletion_matrix.shape[0] < cache_size:
-                self.__cached_deletion_matrix.resize((cache_size,))
+            # for shared memory safety, recreate matrices if the PID changed
+            current_pid = getpid()
+            if self.__cached_pid != current_pid:
+                self.__cached_pid = current_pid
+                self.__cached_score_matrix = np.empty((1,), dtype=float)
+                self.__cached_deletion_matrix = np.empty((1,), dtype=float)
+                self.__cached_insertion_matrix = np.empty((1,), dtype=float)
 
-            if self.__cached_insertion_matrix.shape[0] < cache_size:
-                self.__cached_insertion_matrix.resize((cache_size,))
+            if self.__do_codon:
+                cache_size = (len(ref_) // 3 + 1) * (len(query_) + 1)
+            else:
+                cache_size = (len(ref_) + 1) * (len(query_) + 1)
 
-        if len(query) == 0:
-            score, ref_aligned, query_aligned = float('-Inf'), ref_, '-' * len(ref_)
-        else:
-            score, ref_aligned, query_aligned = _align(
-                ref_.encode('utf-8'),
-                query_.encode('utf-8'),
-                self.__nchars,
-                self.__char_map,
-                self.__score_matrix_,
-                self.__score_matrix_.shape[0],
-                open_insertion,
-                extend_insertion,
-                open_deletion,
-                extend_deletion,
-                miscall_cost,
-                do_local,
-                do_affine,
-                self.__do_codon,
-                self.__codon3x5,
-                self.__codon3x4,
-                self.__codon3x2,
-                self.__codon3x1,
-                self.__cached_score_matrix,
-                self.__cached_deletion_matrix,
-                self.__cached_insertion_matrix
-                )
+            if self.__cached_score_matrix.shape[0] < cache_size:
+                self.__cached_score_matrix.resize((cache_size,))
 
-            if sys.version_info >= (3, 0):
-                ref_aligned = ref_aligned.decode('utf-8')
-                query_aligned = query_aligned.decode('utf-8')
+            if do_affine:
+                if self.__cached_deletion_matrix.shape[0] < cache_size:
+                    self.__cached_deletion_matrix.resize((cache_size,))
+
+                if self.__cached_insertion_matrix.shape[0] < cache_size:
+                    self.__cached_insertion_matrix.resize((cache_size,))
+
+            if len(query) == 0:
+                score, ref_, query_ = float('-Inf'), ref_, '-' * len(ref_)
+            else:
+                score, ref_, query_ = _align(
+                    ref_.encode('utf-8'),
+                    query_.encode('utf-8'),
+                    self.__nchars,
+                    self.__char_map,
+                    self.__score_matrix_,
+                    self.__score_matrix_.shape[0],
+                    open_insertion,
+                    extend_insertion,
+                    open_deletion,
+                    extend_deletion,
+                    miscall_cost,
+                    do_local,
+                    do_affine,
+                    self.__do_codon,
+                    self.__codon3x5,
+                    self.__codon3x4,
+                    self.__codon3x2,
+                    self.__codon3x1,
+                    self.__cached_score_matrix,
+                    self.__cached_deletion_matrix,
+                    self.__cached_insertion_matrix
+                    )
+
+                if sys.version_info >= (3, 0):
+                    ref_ = ref_.decode('utf-8')
+                    query_ = query_.decode('utf-8')
 
         if isinstance(ref, SeqRecord):
             ref_aligned_ = SeqRecord(
-                Seq(ref_aligned),
+                Seq(ref_),
                 id=ref.id,
                 name=ref.name,
                 description=ref.description,
@@ -321,13 +315,13 @@ class Aligner:
                 annotations=ref.annotations
                 )
         elif isinstance(ref, Seq):
-            ref_aligned_ = Seq(ref_aligned)
+            ref_aligned_ = Seq(ref_)
         else:
-            ref_aligned_ = ref_aligned
+            ref_aligned_ = ref_
 
         if isinstance(query, SeqRecord):
             query_aligned_ = SeqRecord(
-                Seq(query_aligned),
+                Seq(query_),
                 id=query.id,
                 name=query.name,
                 description=query.description,
@@ -335,9 +329,9 @@ class Aligner:
                 annotations=query.annotations
                 )
         elif isinstance(query, Seq):
-            query_aligned_ = Seq(query_aligned)
+            query_aligned_ = Seq(query_)
         else:
-            query_aligned_ = query_aligned
+            query_aligned_ = query_
 
         # normalize score to per-position
         if len(query_):
