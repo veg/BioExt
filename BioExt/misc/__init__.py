@@ -262,7 +262,7 @@ def compute_cigar(reference, record, reference_name=None, new_style=False):
     ncol = len(record)
 
     # find start, end of record in the ref
-    start, end = 0, ncol - 1
+    start, end = 0, ncol
     for i in range(ncol):
         if record[i] not in _GAPS:
             start = i
@@ -285,7 +285,7 @@ def compute_cigar(reference, record, reference_name=None, new_style=False):
         query = record[i].upper()
         if ref in _GAPS and query in _GAPS:
             # if both are gaps, skip
-            pass
+            continue
         elif ref in _GAPS:
             m = 'I'  # insertion
             edit_distance += 1
