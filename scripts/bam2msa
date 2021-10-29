@@ -2,6 +2,7 @@
 
 import signal
 import argparse
+import os.path
 
 from Bio import SeqIO
 from BioExt.io._SamBamIO import _to_seqrecord
@@ -36,8 +37,9 @@ def main(bam_file, out_handle, start=None, end=None):
         pass
 
     try:
-        # Index bam file in order to samfile.fetch
-        pysam.index(bam_file)
+        if not os.path.exists(f"{bam_file}.bai"):
+            # Index bam file in order to samfile.fetch
+            pysam.index(bam_file)
         samfile = pysam.Samfile(bam_file, 'rb')
         length = samfile.header['SQ'][0]['LN']
         fetch_args = []
