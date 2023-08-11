@@ -3,23 +3,56 @@
 from __future__ import division, print_function
 
 import os.path
-import numpy
 
-from Cython.Build import cythonize
 from setuptools import Extension, setup
-from BioExt.references._factory import _installrefdirs
+from setuptools.command.build_ext import build_ext
 
-np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
 
 sourcefiles = [os.path.join("BioExt", "tn93", "_tn93.pyx"),
                os.path.join("BioExt", "tn93", "tn93.c")]
 
-tn93_extension = cythonize([
-    Extension(
-        "BioExt.tn93._tn93",
-        include_dirs=[os.path.join("BioExt", "tn93")],
-        sources=sourcefiles
-        )])
+
+class BioCythonNumpyBuildExt(build_ext):
+    """
+    This waits until the ``setup_requires`` packages are installed, and only then does the necessary configuration
+    changes. Cf. https://stackoverflow.com/a/21621689.
+    is interested in that.
+    """
+    def finalize_options(self):
+        self.add_extensions()
+        super().finalize_options()
+        self.include_numpy()
+        self.add_package_data()
+
+    def include_numpy(self):
+        # include numpy dirs, this needs numpy installed
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
+
+    def add_package_data(self):
+        # add package data, this needs biopython installed
+        __builtins__.__NUMPY_SETUP__ = False
+        from BioExt.references._factory import _installrefdirs
+        self.package_data = {
+            'BioExt': [
+                'data/fonts/ttf/*.ttf',
+                'data/scorematrices/*.txt'
+            ] + _installrefdirs
+        }
+
+    def add_extensions(self):
+        # add tn93 extension, this needs cython installed
+        from Cython.Build import cythonize
+
+        self.distribution.ext_modules.extend(cythonize([
+            Extension(
+                "BioExt.tn93._tn93",
+                include_dirs=[os.path.join("BioExt", "tn93")],
+                sources=sourcefiles
+            )
+        ]))
+
 
 ext_modules = [
     Extension(
@@ -28,7 +61,6 @@ ext_modules = [
             os.path.join('BioExt', 'align', '_align.c'),
             os.path.join('BioExt', 'align', 'alignment.c')
             ],
-        include_dirs=np_inc,
         libraries=['m'],
         extra_compile_args=['-O3', '-I.']
         ),
@@ -48,7 +80,7 @@ ext_modules = [
             ],
         extra_compile_args=['-O3', '-I.']
         )
-    ] + tn93_extension
+    ]
 
 
 setup(
@@ -113,12 +145,6 @@ setup(
         'BioExt.uds': 'BioExt/uds',
         'BioExt.untranslate': 'BioExt/untranslate'
         },
-    package_data={
-        'BioExt': [
-            'data/fonts/ttf/*.ttf',
-            'data/scorematrices/*.txt'
-            ] + _installrefdirs
-        },
     scripts=[
         'scripts/bam2fna',
         'scripts/bam2msa',
@@ -132,9 +158,11 @@ setup(
         # 'scripts/variants'
         ],
     ext_modules=ext_modules,
+    cmdclass={'build_ext': BioCythonNumpyBuildExt},
+    setup_requires=['biopython >=1.78', 'cython', 'numpy >= 1.22, < 1.23'],
     install_requires=[
         'biopython >=1.78',
-        'numpy ==1.20.3',
+        'numpy >= 1.22, < 1.23',
         'scipy >=0.15',
         'pysam >=0.17',
         'joblib',
