@@ -12,34 +12,21 @@ sourcefiles = [os.path.join("BioExt", "tn93", "_tn93.pyx"),
                os.path.join("BioExt", "tn93", "tn93.c")]
 
 
-class BioCythonNumpyBuildExt(build_ext):
+class CythonNumpyBuildExt(build_ext):
     """
     This waits until the ``setup_requires`` packages are installed, and only then does the necessary configuration
     changes. Cf. https://stackoverflow.com/a/21621689.
-    is interested in that.
     """
     def finalize_options(self):
         self.add_extensions()
         super().finalize_options()
         self.include_numpy()
-        self.add_package_data()
 
     def include_numpy(self):
         # include numpy dirs, this needs numpy installed
         __builtins__.__NUMPY_SETUP__ = False
         import numpy
         self.include_dirs.append(numpy.get_include())
-
-    def add_package_data(self):
-        # add package data, this needs biopython installed
-        __builtins__.__NUMPY_SETUP__ = False
-        from BioExt.references._factory import _installrefdirs
-        self.package_data = {
-            'BioExt': [
-                'data/fonts/ttf/*.ttf',
-                'data/scorematrices/*.txt'
-            ] + _installrefdirs
-        }
 
     def add_extensions(self):
         # add tn93 extension, this needs cython installed
@@ -158,8 +145,9 @@ setup(
         # 'scripts/variants'
         ],
     ext_modules=ext_modules,
-    cmdclass={'build_ext': BioCythonNumpyBuildExt},
-    setup_requires=['biopython >=1.78', 'cython', 'numpy >= 1.22, < 1.23'],
+    cmdclass={'build_ext': CythonNumpyBuildExt},
+    package_data={'BioExt': ['data/**']},
+    setup_requires=['cython', 'numpy >= 1.22, < 1.23'],
     install_requires=[
         'biopython >=1.78',
         'numpy >= 1.22, < 1.23',
