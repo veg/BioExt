@@ -9,7 +9,7 @@ from libc.math cimport exp, log
 from libc.stdlib cimport free
 
 dtype = np.float64
-itype = np.int
+itype = np.int32
 
 ctypedef np.float64_t dtype_t
 ctypedef np.int_t itype_t
