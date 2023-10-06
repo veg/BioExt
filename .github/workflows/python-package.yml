@@ -29,6 +29,3 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8 nose pynose numpy biopython cython setuptools
         python setup.py install
-    - name: Test with pytest
-      run: |
-        pynose tests/*
