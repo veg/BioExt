@@ -1,3 +1,5 @@
+# distutils: language=c++
+
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 

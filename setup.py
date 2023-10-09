@@ -72,7 +72,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version='0.20.6',
+    version='0.21.2',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -96,7 +96,6 @@ setup(
         'BioExt.optimize',
         'BioExt.orflist',
         'BioExt.phylo',
-        'BioExt.quiver',
         'BioExt.rateclass',
         'BioExt.references',
         'BioExt.scorematrices',
@@ -123,7 +122,6 @@ setup(
         'BioExt.optimize': 'BioExt/optimize',
         'BioExt.orflist': 'BioExt/orflist',
         'BioExt.phylo': 'BioExt/phylo',
-        'BioExt.quiver': 'BioExt/quiver',
         'BioExt.rateclass': 'BioExt/rateclass',
         'BioExt.references': 'BioExt/references',
         'BioExt.scorematrices': 'BioExt/scorematrices',
@@ -138,7 +136,6 @@ setup(
         'scripts/bamclip',
         'scripts/bealign',
         'scripts/clipedge',
-        'scripts/consensus',
         'scripts/msa2bam',
         'scripts/seqmerge',
         'scripts/translate'
@@ -150,7 +147,7 @@ setup(
     setup_requires=['cython', 'numpy >= 1.22, < 1.23'],
     install_requires=[
         'biopython >=1.78',
-        'numpy >= 1.22, < 1.23',
+        'numpy > 1.20.3',
         'scipy >=0.15',
         'pysam >=0.17',
         'joblib',
