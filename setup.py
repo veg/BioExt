@@ -7,7 +7,10 @@ import numpy
 
 from Cython.Build import cythonize
 from setuptools import Extension, setup
-from BioExt.references._factory import _installrefdirs
+
+from glob import glob
+from os.path import join, abspath, split, basename
+
 
 np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
 
@@ -50,10 +53,35 @@ ext_modules = [
         )
     ] + tn93_extension
 
+_refdir = join(
+    split(
+        split(
+            abspath(__file__)
+        )[0]  # this_directory/
+    )[0],  # this_directory/../
+    'BioExt',
+    'data',
+    'references'
+)
+
+_installrefdirs = []
+
+# Simplified logic to generate _installrefdirs
+for seqdir in glob(join(_refdir, '*')):
+    globber = '*.*'  # Assuming you want all file types, adjust as needed
+    _installrefdirs.append(
+        join(
+            'data',
+            'references',
+            basename(seqdir),
+            globber
+        )
+    )
+
 
 setup(
     name='bioext',
-    version='0.21.3',
+    version='0.21.4',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
