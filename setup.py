@@ -60,6 +60,7 @@ _refdir = join(
         )[0]  # this_directory/
     )[0],  # this_directory/../
     'BioExt',
+    'BioExt',
     'data',
     'references'
 )
@@ -78,10 +79,9 @@ for seqdir in glob(join(_refdir, '*')):
         )
     )
 
-
 setup(
     name='bioext',
-    version='0.21.4',
+    version='0.21.5',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
