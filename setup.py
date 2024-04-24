@@ -53,35 +53,9 @@ ext_modules = [
         )
     ] + tn93_extension
 
-_refdir = join(
-    split(
-        split(
-            abspath(__file__)
-        )[0]  # this_directory/
-    )[0],  # this_directory/../
-    'BioExt',
-    'BioExt',
-    'data',
-    'references'
-)
-
-_installrefdirs = []
-
-# Simplified logic to generate _installrefdirs
-for seqdir in glob(join(_refdir, '*')):
-    globber = '*.*'  # Assuming you want all file types, adjust as needed
-    _installrefdirs.append(
-        join(
-            'data',
-            'references',
-            basename(seqdir),
-            globber
-        )
-    )
-
 setup(
     name='bioext',
-    version='0.21.5',
+    version='0.21.7',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -142,8 +116,11 @@ setup(
     package_data={
         'BioExt': [
             'data/fonts/ttf/*.ttf',
-            'data/scorematrices/*.txt'
-            ] + _installrefdirs
+            'data/scorematrices/*.txt',
+            'data/references/cov2/*.*',
+            'data/references/hxb2/*.*',
+            'data/references/nl4-3/*.*'
+            ]
         },
     scripts=[
         'scripts/bam2fna',
