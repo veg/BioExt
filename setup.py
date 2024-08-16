@@ -11,8 +11,7 @@ from setuptools import Extension, setup
 from glob import glob
 from os.path import join, abspath, split, basename
 
-
-np_inc = [os.path.join(os.path.dirname(numpy.__file__), 'core', 'include')]
+np_inc = numpy.get_include()
 
 sourcefiles = [os.path.join("BioExt", "tn93", "_tn93.pyx"),
                os.path.join("BioExt", "tn93", "tn93.c")]
@@ -31,7 +30,7 @@ ext_modules = [
             os.path.join('BioExt', 'align', '_align.c'),
             os.path.join('BioExt', 'align', 'alignment.c')
             ],
-        include_dirs=np_inc,
+        include_dirs=[np_inc],
         libraries=['m'],
         extra_compile_args=['-O3', '-I.']
         ),
@@ -55,7 +54,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version='0.21.7',
+    version='0.21.8',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',
@@ -136,7 +135,7 @@ setup(
     ext_modules=ext_modules,
     install_requires=[
         'biopython >=1.78',
-        'numpy > 1.20.3',
+        'numpy >= 2.0',
         'scipy >=0.15',
         'pysam >=0.17',
         'joblib',
