@@ -12,7 +12,7 @@ dtype = np.float64
 itype = np.int32
 
 ctypedef np.float64_t dtype_t
-ctypedef np.int_t itype_t
+ctypedef np.int32_t itype_t
 
 cdef char GAP
 GAP = '-'

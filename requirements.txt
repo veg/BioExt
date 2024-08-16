@@ -1,4 +1,4 @@
-Cython>=0.28
-numpy>=1.14
+Cython>=3.0
+numpy>=2.0
 joblib
 biopython
