@@ -9,10 +9,10 @@ from libc.math cimport exp, log
 from libc.stdlib cimport free
 
 dtype = np.float64
-itype = np.int32
+itype = np.int64
 
 ctypedef np.float64_t dtype_t
-ctypedef np.int32_t itype_t
+ctypedef np.int64_t itype_t
 
 cdef char GAP
 GAP = '-'

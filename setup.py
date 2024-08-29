@@ -54,7 +54,7 @@ ext_modules = [
 
 setup(
     name='bioext',
-    version='0.21.8',
+    version='0.21.9',
     description='Misc utilities and definitions not included or hidden in BioPython',
     author='N Lance Hepler',
     author_email='nlhepler@gmail.com',

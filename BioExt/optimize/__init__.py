@@ -87,9 +87,9 @@ def wrap_function(function, args):
 
 
 def vecnorm(x, ord=2):
-    if ord == numpy.Inf:
+    if ord == numpy.inf:
         return numpy.amax(numpy.abs(x))
-    elif ord == -numpy.Inf:
+    elif ord == -numpy.inf:
         return numpy.amin(numpy.abs(x))
     else:
         return numpy.sum(numpy.abs(x) ** ord, axis=0) ** (1.0 / ord)
@@ -190,7 +190,7 @@ def _line_search_wolfe2(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
 
 
 def minimize_bfgs(fun, x0, args=(), jac=None, callback=None,
-                  tol=1e-5, norm=numpy.Inf, eps=_epsilon, maxiter=None,
+                  tol=1e-5, norm=numpy.inf, eps=_epsilon, maxiter=None,
                   disp=False, return_all=False):
     """
     Minimization of scalar function of one or more variables using the
