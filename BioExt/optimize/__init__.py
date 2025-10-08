@@ -112,7 +112,7 @@ def approx_fprime(xk, f, epsilon, *args):
         If a scalar, uses the same finite difference delta for all partial
         derivatives.  If an array, should contain one value per element of
         `xk`.
-    \*args : args, optional
+    *args : args, optional
         Any other arguments that are to be passed to `f`.
 
     Returns

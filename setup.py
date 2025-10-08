@@ -133,6 +133,7 @@ setup(
         # 'scripts/variants'
         ],
     ext_modules=ext_modules,
+    python_requires='>=3.10',
     install_requires=[
         'biopython >=1.78',
         'numpy >= 2.0',
