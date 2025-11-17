@@ -345,7 +345,7 @@ def gapless(seq):
     raise ValueError('seq must have type SeqRecord, Seq, or str')
 
 
-_cigar_regexp = re_compile(r'([0-9]+)([M=XID])')
+_cigar_regexp = re_compile(r'([0-9]+)([M=XIDS])')
 
 
 def gapful(record, insertions=True):
